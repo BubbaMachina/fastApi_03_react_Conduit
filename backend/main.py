@@ -7,7 +7,7 @@ import schemas
 import crud
 from database import SessionLocal, engine, Base, get_db
 from auth import router as auth_router, get_current_user
-from profile import router as profile_router
+# from profile import router as profile_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -21,7 +21,6 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-app.include_router(profile_router)
 # Allow frontend on Vite dev server
 
 @app.get("/articles", response_model=List[schemas.ArticleOut])
@@ -42,6 +41,20 @@ def create_article(
 def delete_article(article_id: int, db: Session = Depends(get_db),current_user: User= Depends(get_current_user)):
     crud.delete_article(db, article_id,current_user)
     return {"detail": "Article deleted"}
+
+@app.post("/articles/{article_id}/favorite", response_model=schemas.ArticleOut)
+def add_favorite(article_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return crud.add_favorite(db, article_id, current_user)
+
+
+@app.delete("/articles/{article_id}/favorite", response_model=schemas.ArticleOut)
+def remove_favorite(article_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return crud.remove_favorite(db, article_id, current_user)
+
+@app.get("/favorites", response_model=List[schemas.FavoriteOut])
+def list_favorites(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    favorites = crud.get_favorites(db, current_user)
+    return favorites
 
 # Enable uvicorn run via python main.py
 if __name__ == "__main__":

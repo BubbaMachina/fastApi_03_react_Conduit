@@ -39,10 +39,9 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     
-class Profile(BaseModel):
-    username: str
-    bio: str = ""
-    following: bool = False
+class FavoriteOut(BaseModel):
+    user: UserOut
+    article: ArticleOut
 
     class Config:
         orm_mode = True

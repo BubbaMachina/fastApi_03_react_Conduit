@@ -19,6 +19,7 @@ This is a minimal Medium/Conduit clone built with a FastAPI backend and a React 
 1. **Create a virtual environment:**
 
    ```sh
+   cd ./backend
    python -m venv venv
    ```
 
@@ -36,14 +37,14 @@ This is a minimal Medium/Conduit clone built with a FastAPI backend and a React 
 3. **Install dependencies:**
 
    ```sh
-   pip install -r backend/requirements.txt
+   pip install -r requirements.txt
    ```
 
 4. **Run the backend server:**
 
    ```sh
    cd backend
-   uvicorn main:app --reload
+   python main.py
    ```
 
    The API will be available at [http://localhost:8000](http://localhost:8000).

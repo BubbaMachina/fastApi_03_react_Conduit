@@ -4,12 +4,13 @@ from database import Base
 from sqlalchemy.orm import relationship
 
 
-followers = Table(
-    "followers",
+favorites_table = Table(
+    "favorites",
     Base.metadata,
-    Column("follower_id",Integer,ForeignKey("users.id")),
-    Column("followed_id",Integer,ForeignKey("users.id"))
+    Column("user_id", Integer, ForeignKey("users.id"),primary_key=True),
+    Column("article_id", Integer, ForeignKey("articles.id"),primary_key=True)
 )
+
 
 class Article(Base):
     __tablename__ = "articles"
@@ -20,6 +21,11 @@ class Article(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     owner_id = Column(Integer, ForeignKey("users.id"))  # 👈 links article to user
     owner = relationship("User", back_populates="articles")
+    favorited_by = relationship(
+        "User",
+        secondary=favorites_table,
+        back_populates="favorites"
+    )
 
 class User(Base):
     __tablename__ = "users"
@@ -29,10 +35,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     articles = relationship("Article", back_populates="owner")
-    following = relationship(
-        "User",
-        secondary=followers,
-        primaryjoin=id==followers.c.follower_id,
-        secondaryjoin=id==followers.c.followed_id,
-        backref="followers"
+    favorites = relationship(
+        "Article",
+        secondary=favorites_table,
+        back_populates="favorited_by"
     )
