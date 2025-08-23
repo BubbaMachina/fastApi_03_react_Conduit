@@ -1,9 +1,10 @@
 // frontend/src/App.jsx
 import { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import ArticlePage from './pages/ArticlePage'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import CreateArticlePage from './pages/CreateArticlePage'
 import AuthForm from './AuthForm'
-import ProfilePage from './pages/ProfilePage'
+import Home from './pages/Home'
+import ReadArticle from './pages/ReadArticle'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -21,18 +22,29 @@ function App() {
     // localStorage.setItem('token', res.data.access_token)
     // localStorage.setItem('username', res.data.username)
   }
-  // If not logged in, show login form on all routes
-  if (!isLoggedIn) {
-    return (<AuthForm onLogin={login} />)
-  }
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<ArticlePage logout={logout} />} />
-        <Route path="/profile/:username" element={<ProfilePage logout={logout} />} />
-        {/* Add more routes here later (settings, editor, etc.) */}
-        {/* <Route path="*" element={<Navigate to="/" />} /> */}
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/article/:articleId" element={<ReadArticle />} />
+
+        {/* Protected Routes */}
+        {isLoggedIn ? (
+          <>
+            <Route path="/create" element={<CreateArticlePage logout={logout} />} />
+            <Route path="/dashboard" element={<Home logout={logout} />} />
+          </>
+        ) : (
+          <>
+            <Route path="/create" element={<Navigate to="/login" />} />
+            <Route path="/dashboard" element={<Navigate to="/login" />} />
+          </>
+        )}
+
+        {/* Authentication Route */}
+        <Route path="/login" element={<AuthForm onLogin={login} />} />
       </Routes>
     </Router>
   )

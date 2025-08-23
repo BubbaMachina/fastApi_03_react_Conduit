@@ -18,7 +18,7 @@ const API_URL = 'http://localhost:8000'
 
 
 
-function ArticlePage({logout}) {
+function CreateArticlePage({logout}) {
   const [articles, setArticles] = useState([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -145,4 +145,4 @@ const config = {
   )
 }
 
-export default ArticlePage
+export default CreateArticlePage

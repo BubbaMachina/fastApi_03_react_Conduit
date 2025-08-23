@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
@@ -22,6 +22,8 @@ app.add_middleware(
 
 app.include_router(auth_router)
 # Allow frontend on Vite dev server
+
+
 
 @app.get("/articles", response_model=List[schemas.ArticleOut])
 def list_articles(db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
@@ -55,6 +57,30 @@ def remove_favorite(article_id: int, db: Session = Depends(get_db), current_user
 def list_favorites(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     favorites = crud.get_favorites(db, current_user)
     return favorites
+
+@app.get("/articles/all", response_model=List[schemas.ArticleOut])
+def list_all_articles(
+    db: Session = Depends(get_db),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100)
+):
+    """
+    Fetch all articles with optional pagination.
+    - `skip`: Number of records to skip.
+    - `limit`: Maximum number of records to return.
+    """
+    return db.query(Article).offset(skip).limit(limit).all()
+
+@app.get("/articles/{article_id}", response_model=schemas.ArticleOut)
+def get_article(article_id: int, db: Session = Depends(get_db)):
+    """
+    Fetch details of a single article by its ID.
+    """
+    article = db.query(Article).filter(Article.id == article_id).first()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return article
+
 
 # Enable uvicorn run via python main.py
 if __name__ == "__main__":
