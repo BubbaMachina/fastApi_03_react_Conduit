@@ -20,7 +20,6 @@ function App() {
     setIsLoggedIn(true)
     // localStorage.setItem('token', res.data.access_token)
     // localStorage.setItem('username', res.data.username)
-
   }
   // If not logged in, show login form on all routes
   if (!isLoggedIn) {
