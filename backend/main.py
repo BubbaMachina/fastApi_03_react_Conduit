@@ -82,6 +82,27 @@ def get_article(article_id: int, db: Session = Depends(get_db)):
     return article
 
 
+@app.put("/articles/{article_id}", response_model=schemas.ArticleOut)
+def update_article(
+    article_id: int,
+    updated_article: schemas.ArticleCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update an existing article by its ID.
+    """
+    article = db.query(Article).filter(Article.id == article_id, Article.owner_id == current_user.id).first()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+
+    article.title = updated_article.title
+    article.body = updated_article.body
+    db.commit()
+    db.refresh(article)
+    return article
+
+
 # Enable uvicorn run via python main.py
 if __name__ == "__main__":
     import uvicorn

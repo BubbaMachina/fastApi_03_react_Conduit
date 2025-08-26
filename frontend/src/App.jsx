@@ -1,18 +1,18 @@
 // frontend/src/App.jsx
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import CreateArticlePage from './pages/CreateArticlePage'
-import AuthForm from './AuthForm'
+import CreateArticle from './pages/articles/CreateArticle'
+import Register from './pages/Register'
 import Home from './pages/Home'
-import ReadArticle from './pages/ReadArticle'
+import ReadArticle from './pages/articles/ReadArticle'
+import MainLayout from './Layouts/MainLayout'
+import Login from './pages/Login'
+import ListUserArticles from './pages/articles/ListUserArticles'
+import EditArticle from './pages/articles/EditArticle'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const logout = () => {
-    localStorage.removeItem('token')
-    setIsLoggedIn(false)
-  }
   useEffect(() => {
     if (localStorage.getItem('token')) setIsLoggedIn(true)
   }, [])
@@ -25,27 +25,25 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/article/:articleId" element={<ReadArticle />} />
+     
+        <Routes>
+          <Route element={<MainLayout />}>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/articles/:articleId" element={<ReadArticle />} />
 
-        {/* Protected Routes */}
-        {isLoggedIn ? (
-          <>
-            <Route path="/create" element={<CreateArticlePage logout={logout} />} />
-            <Route path="/dashboard" element={<Home logout={logout} />} />
-          </>
-        ) : (
-          <>
-            <Route path="/create" element={<Navigate to="/login" />} />
-            <Route path="/dashboard" element={<Navigate to="/login" />} />
-          </>
-        )}
+            {/* Auth */}
+            <Route path="/login" element={<Login onLogin={login} />} />
+            <Route path="/register" element={<Register />} />
 
-        {/* Authentication Route */}
-        <Route path="/login" element={<AuthForm onLogin={login} />} />
-      </Routes>
+            {/* Protected Routes */}
+            <Route path="/create" element={isLoggedIn ? <CreateArticle /> : <Navigate to="/login" />} />
+            <Route path="/articles/me" element={isLoggedIn ? <ListUserArticles /> : <Navigate to="/login" />} />
+            <Route path="/articles/:articleId/edit" element={isLoggedIn ? <EditArticle /> : <Navigate to="/login" />} />
+            
+          </Route>
+        </Routes>
+      
     </Router>
   )
 }

@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
+
 export default function Home() {
   const [articles, setArticles] = useState([]);
   const navigate = useNavigate();
@@ -23,53 +24,40 @@ export default function Home() {
   }, []);
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Articles
-      </Typography>
-      {isLoggedIn && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginBottom: '16px',
-          }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate('/create')}
-          >
-            Create Article
-          </Button>
+    <>
+      {/* <Navbar logout={() => navigate('/login')} /> */}
+      
+      <Container maxWidth="md" sx={{ mt: 5 }}>
+        <Typography variant="h4" gutterBottom>
+          Global Articles Feed
+        </Typography>
+        <div>
+          {articles.map((article) => (
+            <Card key={article.id} variant="outlined" sx={{ mb: 2 }}>
+              <CardContent>
+                <Typography variant="h6">{article.title}</Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    display: '-webkit-box',
+                    overflow: 'hidden',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: 3,
+                  }}
+                >
+                  {article.description}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small" href={`/articles/${article.id}`} color="primary">
+                  Read More
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
         </div>
-      )}
-      <div>
-        {articles.map((article) => (
-          <Card key={article.id} variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h6">{article.title}</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  display: '-webkit-box',
-                  overflow: 'hidden',
-                  WebkitBoxOrient: 'vertical',
-                  WebkitLineClamp: 3,
-                }}
-              >
-                {article.description}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button size="small" href={`/article/${article.id}`} color="primary">
-                Read More
-              </Button>
-            </CardActions>
-          </Card>
-        ))}
-      </div>
-    </Container>
+      </Container>
+    </>
   );
 }

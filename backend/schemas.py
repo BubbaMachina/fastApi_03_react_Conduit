@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, constr
 from datetime import datetime
+from typing import List
 
 class ArticleCreate(BaseModel):
     title: str
@@ -46,3 +47,6 @@ class FavoriteOut(BaseModel):
     class Config:
         orm_mode = True
         
+class PaginatedArticles(BaseModel):
+    articles: List[ArticleOut]
+    totalPages: int
