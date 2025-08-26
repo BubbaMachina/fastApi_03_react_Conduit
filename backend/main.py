@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from models import Article,User
 import schemas
 import crud
@@ -72,13 +72,27 @@ def list_all_articles(
     return db.query(Article).offset(skip).limit(limit).all()
 
 @app.get("/articles/{article_id}", response_model=schemas.ArticleOut)
-def get_article(article_id: int, db: Session = Depends(get_db)):
+def get_article(
+    article_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user)
+):
     """
     Fetch details of a single article by its ID.
     """
     article = db.query(Article).filter(Article.id == article_id).first()
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
+
+    # Check if the article is favorited by the current user
+    if current_user:
+        is_favorited = db.query(Article).join(Article.favorited_by).filter(
+            Article.id == article_id, User.id == current_user.id
+        ).count() > 0
+        article.isFavorited = is_favorited
+    else:
+        article.isFavorited = False  # Default to False for unauthenticated users
+
     return article
 
 

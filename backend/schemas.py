@@ -12,6 +12,7 @@ class ArticleOut(BaseModel):
     body: str
     created_at: datetime
     owner_id: int
+    isFavorited: bool = False  # New field to indicate if the article is favorited
 
     class Config:
         orm_mode = True

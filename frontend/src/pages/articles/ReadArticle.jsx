@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -7,24 +7,33 @@ import {
   CardContent,
   CircularProgress,
   Box,
+  Button,
 } from '@mui/material';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:8000';
 
 export default function ReadArticle() {
   const { articleId } = useParams();
+  const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 
   useEffect(() => {
     // Fetch the article details from the backend
-    fetch(`http://localhost:8000/articles/${articleId}`)
+    axios
+      .get(`${API_URL}/articles/${articleId}`, config)
       .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch article');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setArticle(data);
+        setArticle(response.data);
+        setIsFavorited(response.data.isFavorited || false); // Assuming backend sends this
         setLoading(false);
       })
       .catch((error) => {
@@ -32,6 +41,19 @@ export default function ReadArticle() {
         setLoading(false);
       });
   }, [articleId]);
+
+  const toggleFavorite = async () => {
+    try {
+      if (isFavorited) {
+        await axios.delete(`${API_URL}/articles/${articleId}/favorite`, config);
+      } else {
+        await axios.post(`${API_URL}/articles/${articleId}/favorite`, {}, config);
+      }
+      setIsFavorited(!isFavorited);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -61,6 +83,22 @@ export default function ReadArticle() {
           <Typography variant="body1" color="text.secondary">
             {article.body}
           </Typography>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+            <Button
+              variant="outlined"
+              color="success"
+              onClick={toggleFavorite}
+              sx={{ borderColor: 'green', color: 'green' }}
+            >
+              {isFavorited ? 'Unfavorite' : 'Favorite'}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate(-1)} // Navigate back to the previous page
+            >
+              Back
+            </Button>
+          </Box>
         </CardContent>
       </Card>
     </Container>

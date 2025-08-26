@@ -9,6 +9,7 @@ import MainLayout from './Layouts/MainLayout'
 import Login from './pages/Login'
 import ListUserArticles from './pages/articles/ListUserArticles'
 import EditArticle from './pages/articles/EditArticle'
+import FavoritedArticles from './pages/articles/FavoritedArticles'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -40,7 +41,8 @@ function App() {
             <Route path="/create" element={isLoggedIn ? <CreateArticle /> : <Navigate to="/login" />} />
             <Route path="/articles/me" element={isLoggedIn ? <ListUserArticles /> : <Navigate to="/login" />} />
             <Route path="/articles/:articleId/edit" element={isLoggedIn ? <EditArticle /> : <Navigate to="/login" />} />
-            
+            <Route path="/favorites" element={isLoggedIn ? <FavoritedArticles /> : <Navigate to="/login" />} />
+
           </Route>
         </Routes>
       

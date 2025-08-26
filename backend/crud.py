@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 import models
 import schemas
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 def get_articles(db: Session):
     return db.query(models.Article).order_by(models.Article.created_at.desc()).all()
@@ -27,7 +27,8 @@ def add_favorite(db: Session, article_id: int, current_user: models.User):
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     if current_user in article.favorited_by:
-        raise HTTPException(status_code=400, detail="Article already favorited")
+        # Return the article as a success response
+        return article
     current_user.favorites.append(article)
     db.commit() 
     db.refresh(current_user)
@@ -45,4 +46,28 @@ def remove_favorite(db: Session, article_id: int, current_user: models.User):
     return article
 
 def get_favorites(db: Session, current_user: models.User):
-    return current_user.favorites
+    favorites = (
+        db.query(models.Article)
+        .options(joinedload(models.Article.owner))  # Include the owner (user) in the query
+        .filter(models.Article.favorited_by.contains(current_user))
+        .all()
+    )
+
+    return [
+        {
+            "user": {
+                "id": article.owner.id,
+                "username": article.owner.username,
+                "email": article.owner.email,
+                "created_at": article.owner.created_at,
+            },
+            "article": {
+                "id": article.id,
+                "title": article.title,
+                "body": article.body,
+                "created_at": article.created_at,
+                "owner_id": article.owner_id,
+            },
+        }
+        for article in favorites
+    ]

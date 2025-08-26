@@ -28,13 +28,15 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/">
             Home
           </Button>
-          
+
           {isLoggedIn ? (
             <>
-            <Button color="inherit" component={Link} to="/articles/me">
-              Profile
-            </Button>
-          
+              <Button color="inherit" component={Link} to="/articles/me">
+                Profile
+              </Button>
+              <Button color="inherit" component={Link} to="/favorites">
+                Favorites
+              </Button>
               <Button color="inherit" onClick={handleLogout}>
                 Sign Out
               </Button>
