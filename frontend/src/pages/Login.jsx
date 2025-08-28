@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useContext } from 'react';
 import {
   TextField,
   Button,
@@ -9,10 +9,13 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../App';
 
 const API = 'http://localhost:8000';
 
 function Login({ onLogin }) {
+    const { isLoggedIn, setIsLoggedIn, token, setToken, logout } = useContext(AuthContext);
+  
   const [form, setForm] = useState({ username: '', password: '' });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -44,7 +47,8 @@ function Login({ onLogin }) {
       params.append('password', form.password);
       const res = await axios.post(`${API}/auth/login`, params);
       localStorage.setItem('token', res.data.access_token);
-      onLogin();
+      setToken(res.data.access_token);
+      setIsLoggedIn(true);
       navigate('/'); // Redirect to homepage after successful login
     } catch (err) {
       const errorDetail = err.response?.data?.detail || 'Invalid credentials';

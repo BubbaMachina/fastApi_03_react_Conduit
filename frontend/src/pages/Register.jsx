@@ -48,7 +48,7 @@ function Register() {
     if (!validate()) return
     try {
       await axios.post(`${API}/auth/register`, form)
-      navigate('/login') // Redirect to login page after successful registration
+      navigate('/login', { replace: true }) // Redirect to login page after successful registration
     } catch (err) {
       alert(err.response?.data?.detail || 'Something went wrong')
     }

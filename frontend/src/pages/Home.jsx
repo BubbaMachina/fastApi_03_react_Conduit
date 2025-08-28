@@ -8,6 +8,7 @@ import {
   Button,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ArticleCard from '../components/ArticleCard';
 
 
 export default function Home() {
@@ -33,28 +34,7 @@ export default function Home() {
         </Typography>
         <div>
           {articles.map((article) => (
-            <Card key={article.id} variant="outlined" sx={{ mb: 2 }}>
-              <CardContent>
-                <Typography variant="h6">{article.title}</Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    display: '-webkit-box',
-                    overflow: 'hidden',
-                    WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: 3,
-                  }}
-                >
-                  {article.description}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" href={`/articles/${article.id}`} color="primary">
-                  Read More
-                </Button>
-              </CardActions>
-            </Card>
+            <ArticleCard key={article.id} article={article} />
           ))}
         </div>
       </Container>

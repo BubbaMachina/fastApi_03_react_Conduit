@@ -36,7 +36,7 @@ const config = {
         setBody(res.data.body)
       } catch (err) {
         console.error('Error fetching article:', err)
-        if (err.response?.status === 401) navigate('/login')
+        if (err.response?.status === 401) navigate('/login', { replace: true })
       }
     }
 
@@ -52,7 +52,7 @@ const config = {
     // navigate(`/articles/${articleId}`) // Redirect to the article page after update
   } catch (err) {
     console.error('Error updating article:', err)
-    if (err.response?.status === 401) navigate('/login')
+    if (err.response?.status === 401) navigate('/login', { replace: true })
   }
 }
 

@@ -1,15 +1,26 @@
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material'
 import { Link, useNavigate } from 'react-router-dom'
+import { useContext, useEffect, useState } from 'react'
+import { AuthContext } from '../App'
+
 
 const Navbar = () => {
-  const username = localStorage.getItem('username')
-  const navigate = useNavigate()
-  const isLoggedIn = !!localStorage.getItem('token')
+  const { isLoggedIn, token, setIsLoggedIn, logout , getTokenFromStorage } = useContext(AuthContext);
+
+
+  useEffect(() => {
+     if(!token){
+      const storedToken = getTokenFromStorage();
+
+      if (!storedToken) {
+        console.log('No token available');
+
+      }
+    }
+  }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('username')
-    navigate('/') // Redirect to homepage
+    logout();
   }
 
   return (

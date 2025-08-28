@@ -1,5 +1,5 @@
 // frontend/src/App.jsx
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import CreateArticle from './pages/articles/CreateArticle'
 import Register from './pages/Register'
@@ -10,23 +10,67 @@ import Login from './pages/Login'
 import ListUserArticles from './pages/articles/ListUserArticles'
 import EditArticle from './pages/articles/EditArticle'
 import FavoritedArticles from './pages/articles/FavoritedArticles'
+import { Link, useNavigate } from 'react-router-dom'
 
-function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+// Create a General context that stores global variables for Authentication
+// The provider will wrap the entire application, and send the variables and functions to children
+// the consumer will be able to access the variables
 
+export const AuthContext = createContext();
+
+// This Provider wraps entire application
+// Here we will store Bool: is User logged in, and functions to login/logout
+// If we are  logged in, also keep the token
+const AuthProvider = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(null); // Boolean
+  const [token, setToken] = useState(null); // Token 
+  const navigate = useNavigate();
+
+  const getTokenFromStorage = async() => {
+    var savedToken = null;
+    savedToken = await localStorage.getItem('token');
+    if (savedToken && (savedToken !== 'undefined'|| savedToken !== null)) {
+      setToken(savedToken);
+      console.log(`Token retrieved from storage ${savedToken}`);
+    }
+    setIsLoggedIn(!!savedToken);
+    return savedToken;
+  };
+
+  // UseEffect is called once when the component mounts
   useEffect(() => {
-    if (localStorage.getItem('token')) setIsLoggedIn(true)
-  }, [])
+    getTokenFromStorage
+  }, []);
 
-  const login = () => {
-    setIsLoggedIn(true)
-    // localStorage.setItem('token', res.data.access_token)
-    // localStorage.setItem('username', res.data.username)
-  }
+  const login = (newToken) => {
+    setIsLoggedIn(true);
+    setToken(newToken);
+    localStorage.setItem('token', newToken);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    setIsLoggedIn(false);
+    setToken(null);
+    navigate('/login', { replace: true })
+  };
+
+
 
   return (
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, token, setToken,logout, getTokenFromStorage }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+function App() {
+  return (
     <Router>
-     
+    <AuthProvider>
+      
         <Routes>
           <Route element={<MainLayout />}>
             {/* Public Routes */}
@@ -34,20 +78,21 @@ function App() {
             <Route path="/articles/:articleId" element={<ReadArticle />} />
 
             {/* Auth */}
-            <Route path="/login" element={<Login onLogin={login} />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
             {/* Protected Routes */}
-            <Route path="/create" element={isLoggedIn ? <CreateArticle /> : <Navigate to="/login" />} />
-            <Route path="/articles/me" element={isLoggedIn ? <ListUserArticles /> : <Navigate to="/login" />} />
-            <Route path="/articles/:articleId/edit" element={isLoggedIn ? <EditArticle /> : <Navigate to="/login" />} />
-            <Route path="/favorites" element={isLoggedIn ? <FavoritedArticles /> : <Navigate to="/login" />} />
-
+            <Route path="/create" element={<CreateArticle />} />
+            <Route path="/articles/me" element={<ListUserArticles />} />
+            <Route path="/articles/:articleId/edit" element={<EditArticle />} />
+            <Route path="/favorites" element={<FavoritedArticles />} />
           </Route>
         </Routes>
       
+    </AuthProvider>
     </Router>
-  )
+  );
 }
+
 
 export default App

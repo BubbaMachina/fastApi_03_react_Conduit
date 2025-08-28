@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState , useContext} from 'react'
 import axios from 'axios'
 import {
   Container,
@@ -10,9 +10,11 @@ import {
   Box,
   Pagination
 } from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
+import { Visibility, Edit, Delete } from '@mui/icons-material';
 import Navbar from '../../components/Navbar'
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../App';
+import ArticleCard from '../../components/ArticleCard';
 
 const API_URL = 'http://localhost:8000'
 
@@ -20,13 +22,13 @@ const API_URL = 'http://localhost:8000'
 
 function ListUserArticles() {
   const [articles, setArticles] = useState([])
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token')
+  const { isLoggedIn, setIsLoggedIn, token, setToken, logout, getTokenFromStorage } = useContext(AuthContext);
+
+
 const config = {
   headers: {
     Authorization: `Bearer ${token}`
@@ -40,19 +42,6 @@ const config = {
     setTotalPages(res.data.totalPages)
   } catch (err) {
     if (err.response?.status === 401) logout()  // token invalid
-  }
-}
-
-
-  const addArticle = async () => {
-  if (!title.trim() || !body.trim()) return
-  try {
-    await axios.post(`${API_URL}/articles`, { title, body }, config)
-    setTitle('')
-    setBody('')
-    fetchArticles()
-  } catch (err) {
-    if (err.response?.status === 401) logout()
   }
 }
 
@@ -71,12 +60,24 @@ const config = {
 }
 
 
-  useEffect(() => {
+  useEffect( () => {
     // Fetch the current user's articles from the backend API
+
+    if(!token){
+      const storedToken = getTokenFromStorage();
+
+      if (!storedToken) {
+        console.error('No token available');
+        logout(); // Redirect to login if no token
+        return;
+      }
+    }
+
+    console.log(`The token is ${token}`)
     fetch(`${API_URL}/articles`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => {
@@ -87,7 +88,7 @@ const config = {
       })
       .then((data) => setArticles(data))
       .catch((error) => console.error('Error fetching user articles:', error));
-  }, [])
+  }, [token])
 
   const username = localStorage.getItem('username') || 'Your Name';
 
@@ -117,35 +118,13 @@ const config = {
       </div>
       <div>
         {articles.map((article) => (
-          <Card key={article.id} variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography variant="h6">{article.title}</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  display: '-webkit-box',
-                  overflow: 'hidden',
-                  WebkitBoxOrient: 'vertical',
-                  WebkitLineClamp: 3,
-                }}
-              >
-                {article.body}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button size="small" href={`/articles/${article.id}`} color="primary">
-                Read More
-              </Button>
-
-              <Button size="small" color="secondary" onClick={() => navigate(`/articles/${article.id}/edit`)}>
-                Edit
-              </Button>
-              <Button size="small" color="error" onClick={() => deleteArticle(article.id)}>
-                Delete
-              </Button>
-            </CardActions>
-          </Card>
+          <ArticleCard
+            key={article.id}
+            article={article}
+            isEdit={true}
+            navigate={navigate}
+            deleteArticle={deleteArticle}
+          />
         ))}
       </div>
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>

@@ -11,6 +11,7 @@ import {
   Pagination,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ArticleCard from '../../components/ArticleCard';
 
 const API_URL = 'http://localhost:8000';
 
@@ -56,28 +57,12 @@ export default function FavoritedArticles() {
         <>
           <div>
             {articles.map((article) => (
-              <Card key={article.id} variant="outlined" sx={{ mb: 2 }}>
-                <CardContent>
-                  <Typography variant="h6">{article.title}</Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      display: '-webkit-box',
-                      overflow: 'hidden',
-                      WebkitBoxOrient: 'vertical',
-                      WebkitLineClamp: 3,
-                    }}
-                  >
-                    {article.body}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" href={`/articles/${article.id}`} color="primary">
-                    Read More
-                  </Button>
-                </CardActions>
-              </Card>
+              <ArticleCard
+                key={article.id}
+                article={article}
+                isEdit={false}
+                navigate={navigate}
+              />
             ))}
           </div>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>

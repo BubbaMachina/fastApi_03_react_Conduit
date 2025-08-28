@@ -15,7 +15,7 @@ class ArticleOut(BaseModel):
     isFavorited: bool = False  # New field to indicate if the article is favorited
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserCreate(BaseModel):
@@ -35,7 +35,7 @@ class UserOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -46,7 +46,7 @@ class FavoriteOut(BaseModel):
     article: ArticleOut
 
     class Config:
-        orm_mode = True
+        from_attributes = True
         
 class PaginatedArticles(BaseModel):
     articles: List[ArticleOut]
